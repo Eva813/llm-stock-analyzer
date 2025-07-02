@@ -11,7 +11,3 @@ llm:
   temperature: 0.5
   max_tokens: 4096
   retry: 3
-
-shioaji:
-  api_key: "your_shioaji_api_key_here"
-  api_secret: "your_shioaji_api_secret_here"

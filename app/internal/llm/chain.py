@@ -1,5 +1,5 @@
 """
-LLM chain for stock trend analysis: embeds signal into prompt and queries LLM.
+LLM chain for stock trend analysis: embeds signal into prompt and queries LLM using Gemini.
 """
 
 from pathlib import Path
@@ -9,21 +9,19 @@ from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import RunnableLambda, RunnableSerializable
 from langchain_core.runnables.retry import RunnableRetry
-from langchain_openai import AzureChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 
 from app.configs.config import Config, get_config
 from app.services.analysis.stock_trend_pipeline import analyze_stock_trend_signal
 
 
-def get_llm_client(config: Optional[Config] = None) -> AzureChatOpenAI:
-    """Return AzureChatOpenAI client for stock analysis."""
+def get_llm_client(config: Optional[Config] = None) -> ChatGoogleGenerativeAI:
+    """Return ChatGoogleGenerativeAI client for stock analysis."""
     if config is None:
         config = get_config()
-    return AzureChatOpenAI(
-        azure_deployment=config.azure_openai.deployment,
-        azure_endpoint=config.azure_openai.endpoint,
-        api_version=config.azure_openai.api_version,
-        api_key=config.azure_openai.subscription_key,
+    return ChatGoogleGenerativeAI(
+        model=config.gemini.model,
+        google_api_key=config.gemini.api_key.get_secret_value(),
         temperature=config.llm.temperature,
         max_tokens=config.llm.max_tokens,
     )

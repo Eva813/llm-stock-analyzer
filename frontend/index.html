@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM 股票分析工具</title>
+    <style>
+        /* 基本樣式 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f4f7f9;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        /* 卡片容器 */
+        .container {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        /* 輸入框和按鈕 */
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        #stock-id-input {
+            flex-grow: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        #stock-id-input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        #analyze-button {
+            padding: 12px 25px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #analyze-button:hover {
+            background-color: #2980b9;
+        }
+        /* 結果顯示區域 */
+        #result-container {
+            text-align: left;
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 100px;
+            white-space: pre-wrap; /* 保持換行 */
+            word-wrap: break-word;
+            font-family: "Courier New", Courier, monospace;
+            line-height: 1.6;
+        }
+        .loading {
+            color: #999;
+        }
+        .suggestion {
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        .suggestion.long { color: #27ae60; }
+        .suggestion.short { color: #c0392b; }
+        .suggestion.wait { color: #f39c12; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>LLM 股票分析工具</h1>
+    <div class="input-group">
+        <input type="text" id="stock-id-input" placeholder="請輸入股票代碼 (例如 AAPL, SOFI)">
+        <button id="analyze-button">分析</button>
+    </div>
+    <div id="result-container">
+        請輸入股票代碼並點擊分析按鈕。
+    </div>
+</div>
+
+<script>
+    const stockInput = document.getElementById('stock-id-input');
+    const analyzeButton = document.getElementById('analyze-button');
+    const resultContainer = document.getElementById('result-container');
+
+    // 處理分析請求的函數
+    async function handleAnalysis() {
+        const stockId = stockInput.value.trim().toUpperCase();
+        if (!stockId) {
+            resultContainer.innerHTML = '請輸入有效的股票代碼。';
+            return;
+        }
+
+        resultContainer.innerHTML = '<div class="loading">正在分析中，請稍候...</div>';
+        analyzeButton.disabled = true;
+
+        try {
+            // 呼叫後端 API
+            const response = await fetch('http://localhost:8000/api/v1/stock/llm-report', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ stock_id: stockId }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP 錯誤！ 狀態: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            // 格式化並顯示結果
+            const suggestionClass = data.suggestion.toLowerCase();
+            resultContainer.innerHTML = `
+                <div class="suggestion ${suggestionClass}">建議: ${data.suggestion}</div>
+                <div><strong>原因:</strong> ${data.reason}</div>
+            `;
+
+        } catch (error) {
+            console.error('分析失敗:', error);
+            resultContainer.innerHTML = `分析時發生錯誤。<br>請確認後端服務是否正在運行，以及股票代碼是否正確。<br>錯誤訊息: ${error.message}`;
+        } finally {
+            analyzeButton.disabled = false;
+        }
+    }
+
+    // 監聽按鈕點擊事件
+    analyzeButton.addEventListener('click', handleAnalysis);
+
+    // 監聽 Enter 鍵
+    stockInput.addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            handleAnalysis();
+        }
+    });
+</script>
+
+</body>
+</html>

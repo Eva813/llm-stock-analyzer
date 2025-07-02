@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.endpoints import router as v1_router
 from app.configs.config import get_config
@@ -17,6 +18,16 @@ app = FastAPI(
     description=config.app.description,
     version=config.app.version,
 )
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
+
 
 app.include_router(v1_router, prefix="/api/v1", tags=["llm-analysis"])
 
