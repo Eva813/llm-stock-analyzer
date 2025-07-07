@@ -19,6 +19,7 @@ class StockAnalysisResponse(BaseModel):
     stock_id: str
     suggestion: str
     reason: str
+    reason_zh_tw: str
 
 
 @router.post("/stock/llm-report", response_model=StockAnalysisResponse)
@@ -37,6 +38,7 @@ async def get_stock_llm_report(request: StockAnalysisRequest):
             stock_id=llm_result.get("stock_id", request.stock_id),
             suggestion=llm_result.get("suggestion", ""),
             reason=llm_result.get("reason", ""),
+            reason_zh_tw=llm_result.get("reason_zh_tw", ""),
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"LLM analysis failed: {str(e)}")

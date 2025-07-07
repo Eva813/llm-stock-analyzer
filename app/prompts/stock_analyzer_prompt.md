@@ -14,9 +14,10 @@ Your task:
 
 {{
   "suggestion": "Long|Short|Wait",
-  "reason": "..."
+  "reason": "...",
+  "reason_zh_tw": "..."
 }}
 
-Do not output anything except the JSON object above. The reason field must not exceed 150 words.
+Do not output anything except the JSON object above. Both reason fields must not exceed 150 words each. The reason field should be in English, and reason_zh_tw should be in Traditional Chinese (正體中文).
 
 Now, analyze the following technical indicators and provide your best actionable trade insight

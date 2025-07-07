@@ -85,6 +85,12 @@
         .suggestion.long { color: #27ae60; }
         .suggestion.short { color: #c0392b; }
         .suggestion.wait { color: #f39c12; }
+        .reason-section {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-left: 3px solid #3498db;
+            background-color: #f8f9fa;
+        }
     </style>
 </head>
 <body>
@@ -136,7 +142,8 @@
             const suggestionClass = data.suggestion.toLowerCase();
             resultContainer.innerHTML = `
                 <div class="suggestion ${suggestionClass}">建議: ${data.suggestion}</div>
-                <div><strong>原因:</strong> ${data.reason}</div>
+                <div class="reason-section"><strong>英文原因:</strong> ${data.reason}</div>
+                <div class="reason-section"><strong>中文原因:</strong> ${data.reason_zh_tw}</div>
             `;
 
         } catch (error) {
