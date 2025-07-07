@@ -1,0 +1,53 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  annotations:
+    run.googleapis.com/ingress: all
+    run.googleapis.com/execution-environment: gen2
+  name: llm-stock-analyzer
+spec:
+  template:
+    metadata:
+      annotations:
+        # 設定自動縮放
+        autoscaling.knative.dev/minScale: "0"
+        autoscaling.knative.dev/maxScale: "10"
+        # 設定 CPU 和記憶體
+        run.googleapis.com/cpu: "1"
+        run.googleapis.com/memory: "2Gi"
+        # 設定請求超時時間
+        run.googleapis.com/timeout: "300s"
+        # 設定平行處理請求數
+        run.googleapis.com/execution-environment: gen2
+    spec:
+      containerConcurrency: 80
+      timeoutSeconds: 300
+      containers:
+      - image: gcr.io/coral-balancer-464807-h8/llm-stock-analyzer:latest
+        ports:
+        - name: http1
+          containerPort: 8080
+        env:
+        - name: PORT
+          value: "8080"
+        - name: PYTHONUNBUFFERED
+          value: "1"
+        resources:
+          limits:
+            cpu: "1"
+            memory: "2Gi"
+        # 健康檢查
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5

@@ -1,9 +1,9 @@
 app:
-  host: "127.0.0.1"
+  host: "0.0.0.0"
   name: "LLM Stock Analyzer API"
   description: "LLM Stock analyzer API"
   version: "0.0.1"
-  port: 8000
+  port: 8080
   log_level: "INFO"
 
 llm:
