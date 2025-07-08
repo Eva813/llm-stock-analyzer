@@ -25,25 +25,26 @@ gcloud services enable containerregistry.googleapis.com
 
 # 建構並推送 Docker 映像檔
 echo "🏗️ 建構 Docker 映像檔..."
-docker build -t $IMAGE_NAME:latest .
+docker build --platform linux/amd64 -t $IMAGE_NAME .
 
 echo "📤 推送映像檔到 Container Registry..."
-docker push $IMAGE_NAME:latest
+docker push $IMAGE_NAME
 
 # 部署到 Cloud Run
 echo "🚀 部署到 Cloud Run..."
 gcloud run deploy $SERVICE_NAME \
-  --image $IMAGE_NAME:latest \
-  --platform managed \
-  --region $REGION \
-  --allow-unauthenticated \
+  --image $IMAGE_NAME \
+  --port 8080 \
   --memory 2Gi \
-  --cpu 1 \
-  --timeout 300s \
-  --max-instances 10 \
-  --min-instances 0 \
-  --concurrency 80 \
-  --set-env-vars "PORT=8080,PYTHONUNBUFFERED=1"
+  --cpu 2 \
+  --timeout 900 \
+  --allow-unauthenticated \
+  --region $REGION \
+  --project $PROJECT_ID \
+  --set-secrets GEMINI_API_KEY=GEMINI_API_KEY:latest \
+  --set-secrets SHIOAJI_API_KEY=SHIOAJI_API_KEY:latest \
+  --set-secrets SHIOAJI_API_SECRET=SHIOAJI_API_SECRET:latest \
+  --set-env-vars GEMINI_ENDPOINT=https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent,GEMINI_MODEL=gemini-2.0-flash,CONFIG_PATH=app/configs/config.yaml
 
 # 取得服務 URL
 echo "✅ 部署完成！"
